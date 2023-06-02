@@ -27,6 +27,7 @@ body {
     display: flex;
     justify-content: space-between; /* Adjust the space between items */
     align-items: center;
+    width: 100%;
 }
 
 .nav-logo {
