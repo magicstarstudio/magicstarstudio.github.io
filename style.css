@@ -1,0 +1,77 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #285879; /* Set the background color to light grey */
+    justify-content: center;
+    align-items: center;
+}
+
+#comic-image {
+    display: block;
+    max-width: 65%;
+    margin: 20px auto;
+    border: 4px solid rgb(8, 48, 66);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    border-radius: 15px;
+}
+
+.nav {
+    background-color: rgb(46, 102, 128);
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
+}
+
+.nav-logo {
+    margin-right: auto;
+}
+
+.nav-logo img {
+    height: 40px;
+    vertical-align: middle;
+    justify-content: center;
+    
+}
+
+.nav select {
+    padding: 5px;
+    font-size: 16px;
+    border-radius: 5px;
+    margin-right: auto;
+    border: black;
+    cursor: pointer;
+}
+
+.nav button {
+    padding: 8px 15px;
+    font-size: 16px;
+    color: black;
+    border-radius: 5px;
+    border: black;
+    cursor: pointer;
+}
+
+footer {
+    background-color: #1c2647;
+    text-align: center;
+    padding: 10px;
+    color: white;
+}
+
+.nav .spacer {
+    margin-left: 10px; /* Add space between buttons */
+}
+
+.image {
+    background-color: #285879;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 5px;
+    height: 825px;
+}
