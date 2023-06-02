@@ -17,6 +17,7 @@ body {
 }
 
 .nav {
+    position: fixed;
     background-color: rgb(46, 102, 128);
     padding: 10px;
     display: flex;
