@@ -17,7 +17,11 @@ body {
 }
 
 .nav {
-    position: fixed;
+     position: fixed; /* Position the navbar as fixed */
+    top: 0; /* Set the navbar to the top of the screen */
+    left: 0;
+    right: 0;
+    z-index: 999;
     background-color: rgb(46, 102, 128);
     padding: 10px;
     display: flex;
