@@ -79,3 +79,14 @@ footer {
     border-radius: 5px;
     height: 825px;
 }
+
+.logo {
+    background-color: #285879;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 5px;
+    height: auto;
+    max-height: 600px;
+}
