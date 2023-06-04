@@ -1,174 +1,115 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Paint Program</title>
+    <title>HTML Paint Program</title>
     <style>
-        /* CSS styles for the paint program */
-        body {
-            font-family: Arial, sans-serif;
-        }
-
-        #navbar {
-            background-color: #f2f2f2;
-            padding: 10px;
-        }
-
-        #navbar button {
-            margin-right: 5px;
-        }
-
-        #container {
-            display: flex;
-        }
-
-        #canvas-container {
-            position: relative;
-            flex-grow: 1;
-        }
-
-        #canvas {
-            border: 1px solid #ccc;
-            cursor: crosshair;
-        }
-
-        #toolbar {
-            padding: 10px;
-            background-color: #f2f2f2;
-            border-right: 1px solid #ccc;
-        }
-
-        .toolbar-button {
-            padding: 8px 12px;
-            margin-bottom: 10px;
-            border: none;
-            background-color: #4caf50;
-            color: #fff;
-            font-size: 14px;
-            cursor: pointer;
-        }
-
-        .toolbar-button:hover {
-            background-color: #45a049;
-        }
-
-        .brush-size-container {
-            margin-bottom: 10px;
-        }
-
-        .brush-size-slider {
-            width: 100%;
-        }
-
-        /* CSS styles for the layer UI and drag and drop functionality */
-        #layer-container {
-            padding: 10px;
-            background-color: #f2f2f2;
-            flex-shrink: 0;
-        }
-
-        .layer {
-            display: flex;
-            align-items: center;
-            margin-bottom: 5px;
-            user-select: none;
-            cursor: grab;
-        }
-
-        .layer:active {
-            cursor: grabbing;
-        }
-
-        .layer[data-index]:hover {
-            background-color: #eaeaea;
-        }
-
-        .layer input {
-            margin-right: 5px;
-        }
-
-        .layer-label {
-            margin-right: 10px;
-        }
-
-        .layer-button {
-            padding: 4px;
-            border: none;
-            background-color: #eaeaea;
-            color: #000;
-            font-size: 12px;
-            cursor: pointer;
-        }
-
-        .layer-button:hover {
-            background-color: #dcdcdc;
+        /* Add your custom styles here */
+        canvas {
+            border: 1px solid #000;
         }
     </style>
 </head>
 <body>
-    <div id="navbar">
-        <button id="undoButton" disabled>Undo</button>
-        <button id="redoButton" disabled>Redo</button>
+    <div>
+        <button onclick="undo()">Undo</button>
+        <button onclick="redo()">Redo</button>
+        <label for="horizontalRes">Horizontal Resolution:</label>
+        <input type="number" id="horizontalRes" value="800">
+        <label for="verticalRes">Vertical Resolution:</label>
+        <input type="number" id="verticalRes" value="600">
+        <button onclick="changeResolution()">Change Resolution</button>
     </div>
-    <div id="container">
-        <div id="canvas-container">
-            <canvas id="canvas" width="800" height="600"></canvas>
-        </div>
-        <div id="toolbar">
-            <!-- Existing toolbar buttons -->
-        </div>
-        <div id="layer-container"></div>
-    </div>
+    <canvas id="canvas"></canvas>
 
     <script>
-        // JavaScript code for managing layers, undo, and redo functionality
         const canvas = document.getElementById('canvas');
-        const context = canvas.getContext('2d');
-
-        const undoButton = document.getElementById('undoButton');
-        const redoButton = document.getElementById('redoButton');
-
+        const ctx = canvas.getContext('2d');
         const undoStack = [];
         const redoStack = [];
 
+        // Initialize canvas size
+        let resolution = {
+            horizontal: parseInt(document.getElementById('horizontalRes').value),
+            vertical: parseInt(document.getElementById('verticalRes').value)
+        };
+        canvas.width = resolution.horizontal;
+        canvas.height = resolution.vertical;
+
+        // Initialize drawing state
+        let isDrawing = false;
+        let lastX = 0;
+        let lastY = 0;
+
+        // Add event listeners
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+
+        // Function to start drawing
+        function startDrawing(e) {
+            isDrawing = true;
+            [lastX, lastY] = [e.offsetX, e.offsetY];
+        }
+
+        // Function to draw on the canvas
+        function draw(e) {
+            if (!isDrawing) return;
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.stroke();
+            [lastX, lastY] = [e.offsetX, e.offsetY];
+        }
+
+        // Function to stop drawing
+        function stopDrawing() {
+            isDrawing = false;
+            saveState();
+        }
+
+        // Function to save the current state for undo/redo
+        function saveState() {
+            undoStack.push(canvas.toDataURL());
+            redoStack.length = 0;
+        }
+
+        // Function to undo the last drawing action
         function undo() {
-            if (undoStack.length > 0) {
-                const lastState = undoStack.pop();
-                redoStack.push(canvas.toDataURL());
-                const img = new Image();
-                img.onload = function() {
-                    context.clearRect(0, 0, canvas.width, canvas.height);
-                    context.drawImage(img, 0, 0);
-                    if (undoStack.length === 0) {
-                        undoButton.disabled = true;
-                    }
-                    redoButton.disabled = false;
-                };
-                img.src = lastState;
-            }
+            if (undoStack.length === 0) return;
+            redoStack.push(canvas.toDataURL());
+            let img = new Image();
+            img.onload = function () {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0);
+            };
+            img.src = undoStack.pop();
         }
 
+        // Function to redo the last undone drawing action
         function redo() {
-            if (redoStack.length > 0) {
-                const nextState = redoStack.pop();
-                undoStack.push(canvas.toDataURL());
-                const img = new Image();
-                img.onload = function() {
-                    context.clearRect(0, 0, canvas.width, canvas.height);
-                    context.drawImage(img, 0, 0);
-                    undoButton.disabled = false;
-                    if (redoStack.length === 0) {
-                        redoButton.disabled = true;
-                    }
-                };
-                img.src = nextState;
-            }
+            if (redoStack.length === 0) return;
+            undoStack.push(canvas.toDataURL());
+            let img = new Image();
+            img.onload = function () {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0);
+            };
+            img.src = redoStack.pop();
         }
 
-        undoButton.addEventListener('click', undo);
-        redoButton.addEventListener('click', redo);
-
-        // Rest of your existing code for managing layers and other functionalities...
-        // ...
+        // Function to change the canvas resolution
+        function changeResolution() {
+            const newResolution = {
+                horizontal: parseInt(document.getElementById('horizontalRes').value),
+                vertical: parseInt(document.getElementById('verticalRes').value)
+            };
+            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            canvas.width = newResolution.horizontal;
+            canvas.height = newResolution.vertical;
+            ctx.putImageData(imgData, 0, 0);
+            saveState();
+        }
     </script>
 </body>
 </html>
