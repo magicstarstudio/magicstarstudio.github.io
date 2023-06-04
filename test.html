@@ -1,14 +1,19 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Paint Program</title>
+    <title>Test Paint Program</title>
     <style>
         body {
             font-family: Arial, sans-serif;
         }
 
+        #container {
+            display: flex;
+        }
+
         #canvas-container {
             position: relative;
+            flex-grow: 1;
         }
 
         #canvas {
@@ -19,12 +24,18 @@
         #toolbar {
             padding: 10px;
             background-color: #f2f2f2;
-            border-bottom: 1px solid #ccc;
+            border-right: 1px solid #ccc;
+        }
+
+        #layer-container {
+            padding: 10px;
+            background-color: #f2f2f2;
+            flex-shrink: 0;
         }
 
         .toolbar-button {
             padding: 8px 12px;
-            margin-right: 10px;
+            margin-bottom: 10px;
             border: none;
             background-color: #4caf50;
             color: #fff;
@@ -34,17 +45,6 @@
 
         .toolbar-button:hover {
             background-color: #45a049;
-        }
-
-        #color-picker {
-            margin-left: 10px;
-            padding: 5px;
-            border: none;
-        }
-
-        #layer-container {
-            padding: 10px;
-            background-color: #f2f2f2;
         }
 
         .layer {
@@ -73,18 +73,33 @@
         .layer-button:hover {
             background-color: #dcdcdc;
         }
+
+        .brush-size-container {
+            margin-bottom: 10px;
+        }
+
+        .brush-size-slider {
+            width: 100%;
+        }
     </style>
 </head>
 <body>
-    <div id="toolbar">
-        <button class="toolbar-button" onclick="setBrush('brush')">Brush</button>
-        <button class="toolbar-button" onclick="setBrush('eraser')">Eraser</button>
-        <input type="color" id="color-picker" onchange="changeColor(event)" />
-        <button class="toolbar-button" onclick="addLayer()">Add Layer</button>
-        <button class="toolbar-button" onclick="removeLayer()">Remove Layer</button>
-    </div>
-    <div id="canvas-container">
-        <canvas id="canvas" width="800" height="600"></canvas>
+    <div id="container">
+        <div id="canvas-container">
+            <canvas id="canvas" width="800" height="600"></canvas>
+        </div>
+        <div id="toolbar">
+            <button class="toolbar-button" onclick="setBrush('brush')">Brush</button>
+            <button class="toolbar-button" onclick="setBrush('eraser')">Eraser</button>
+            <div class="brush-size-container">
+                <input type="range" class="brush-size-slider" min="1" max="20" value="5" onchange="changeBrushSize(event)" />
+            </div>
+            <input type="color" id="color-picker" onchange="changeColor(event)" />
+            <input type="number" id="resolution-input" value="800" onchange="changeResolution(event)" /> Resolution
+            <input type="color" id="background-color-input" onchange="changeBackgroundColor(event)" /> Background Color
+            <button class="toolbar-button" onclick="addLayer()">Add Layer</button>
+            <button class="toolbar-button" onclick="removeLayer()">Remove Layer</button>
+        </div>
         <div id="layer-container"></div>
     </div>
 
@@ -95,6 +110,7 @@
         const layers = [];
         let currentLayer = null;
         let currentBrush = 'brush';
+        let brushSize = 5;
         let isDrawing = false;
 
         function addLayer() {
@@ -128,6 +144,10 @@
             currentBrush = brush;
         }
 
+        function changeBrushSize(event) {
+            brushSize = parseInt(event.target.value);
+        }
+
         function startDrawing(event) {
             isDrawing = true;
             const { offsetX, offsetY } = event;
@@ -138,6 +158,7 @@
         function draw(event) {
             if (!isDrawing) return;
             const { offsetX, offsetY } = event;
+            context.lineWidth = brushSize;
             context.lineTo(offsetX, offsetY);
             context.stroke();
         }
@@ -151,6 +172,22 @@
 
         function changeColor(event) {
             context.strokeStyle = event.target.value;
+        }
+
+        function changeResolution(event) {
+            const newResolution = parseInt(event.target.value);
+            canvas.width = newResolution;
+            canvas.height = newResolution * 0.75; // Adjust height based on aspect ratio (4:3)
+            layers.forEach(layer => {
+                layer.width = canvas.width;
+                layer.height = canvas.height;
+            });
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            layers.forEach(layer => context.drawImage(layer, 0, 0));
+        }
+
+        function changeBackgroundColor(event) {
+            canvas.style.backgroundColor = event.target.value;
         }
 
         function renderLayers() {
