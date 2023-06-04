@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Test Paint Program</title>
+    <title>Paint Program</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -158,7 +158,14 @@
         function draw(event) {
             if (!isDrawing) return;
             const { offsetX, offsetY } = event;
-            context.lineWidth = brushSize;
+            if (currentBrush === 'brush') {
+                context.globalCompositeOperation = 'source-over';
+                context.strokeStyle = context.fillStyle;
+                context.lineWidth = brushSize;
+            } else if (currentBrush === 'eraser') {
+                context.globalCompositeOperation = 'destination-out';
+                context.lineWidth = brushSize;
+            }
             context.lineTo(offsetX, offsetY);
             context.stroke();
         }
@@ -168,6 +175,7 @@
             currentLayer.getContext('2d').drawImage(canvas, 0, 0);
             context.clearRect(0, 0, canvas.width, canvas.height);
             layers.forEach(layer => context.drawImage(layer, 0, 0));
+            context.globalCompositeOperation = 'source-over'; // Reset composite operation
         }
 
         function changeColor(event) {
