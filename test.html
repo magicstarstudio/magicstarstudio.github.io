@@ -7,6 +7,13 @@
         canvas {
             border: 1px solid #000;
         }
+
+        .layer {
+            padding: 10px;
+            margin-bottom: 5px;
+            background-color: #f0f0f0;
+            cursor: move;
+        }
     </style>
 </head>
 <body>
@@ -18,7 +25,11 @@
         <label for="verticalRes">Vertical Resolution:</label>
         <input type="number" id="verticalRes" value="600">
         <button onclick="changeResolution()">Change Resolution</button>
+        <label for="brushSize">Brush Size:</label>
+        <input type="number" id="brushSize" value="5">
+        <input type="color" id="brushColor" value="#000000">
     </div>
+    <div id="layersContainer"></div>
     <canvas id="canvas"></canvas>
 
     <script>
@@ -40,6 +51,9 @@
         let lastX = 0;
         let lastY = 0;
 
+        // Initialize layers
+        let layers = [];
+
         // Add event listeners
         canvas.addEventListener('mousedown', startDrawing);
         canvas.addEventListener('mousemove', draw);
@@ -58,6 +72,8 @@
             ctx.beginPath();
             ctx.moveTo(lastX, lastY);
             ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.lineWidth = document.getElementById('brushSize').value;
+            ctx.strokeStyle = document.getElementById('brushColor').value;
             ctx.stroke();
             [lastX, lastY] = [e.offsetX, e.offsetY];
         }
@@ -110,6 +126,60 @@
             ctx.putImageData(imgData, 0, 0);
             saveState();
         }
+
+        // Function to create a new layer
+        function createLayer() {
+            const layerId = layers.length + 1;
+            const layerElement = document.createElement('div');
+            layerElement.className = 'layer';
+            layerElement.draggable = true;
+            layerElement.id = 'layer-' + layerId;
+            layerElement.textContent = 'Layer ' + layerId;
+            layerElement.addEventListener('dragstart', layerDragStart);
+            layerElement.addEventListener('dragover', layerDragOver);
+            layerElement.addEventListener('drop', layerDrop);
+            document.getElementById('layersContainer').appendChild(layerElement);
+            layers.push(layerElement);
+        }
+
+        // Function to handle layer drag start
+        function layerDragStart(e) {
+            e.dataTransfer.setData('text/plain', e.target.id);
+        }
+
+        // Function to handle layer drag over
+        function layerDragOver(e) {
+            e.preventDefault();
+        }
+
+        // Function to handle layer drop
+        function layerDrop(e) {
+            e.preventDefault();
+            const sourceLayerId = e.dataTransfer.getData('text/plain');
+            const sourceLayer = document.getElementById(sourceLayerId);
+            const targetLayer = e.target;
+            const sourceIndex = layers.indexOf(sourceLayer);
+            const targetIndex = layers.indexOf(targetLayer);
+            if (sourceIndex > -1 && targetIndex > -1) {
+                layers.splice(sourceIndex, 1);
+                layers.splice(targetIndex, 0, sourceLayer);
+                rearrangeLayers();
+            }
+        }
+
+        // Function to rearrange layers
+        function rearrangeLayers() {
+            const layersContainer = document.getElementById('layersContainer');
+            while (layersContainer.firstChild) {
+                layersContainer.firstChild.remove();
+            }
+            layers.forEach((layer) => {
+                layersContainer.appendChild(layer);
+            });
+        }
+
+        // Create initial layer
+        createLayer();
     </script>
 </body>
 </html>
