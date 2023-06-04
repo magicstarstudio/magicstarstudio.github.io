@@ -3,36 +3,95 @@
 <head>
     <title>Paint Program</title>
     <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        #canvas-container {
+            position: relative;
+        }
+
         #canvas {
-            border: 1px solid #000;
+            border: 1px solid #ccc;
             cursor: crosshair;
         }
+
         #toolbar {
-            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #f2f2f2;
+            border-bottom: 1px solid #ccc;
         }
+
         .toolbar-button {
-            display: inline-block;
-            padding: 5px;
-            margin-right: 5px;
-            border: 1px solid #000;
+            padding: 8px 12px;
+            margin-right: 10px;
+            border: none;
+            background-color: #4caf50;
+            color: #fff;
+            font-size: 14px;
             cursor: pointer;
+        }
+
+        .toolbar-button:hover {
+            background-color: #45a049;
+        }
+
+        #color-picker {
+            margin-left: 10px;
+            padding: 5px;
+            border: none;
+        }
+
+        #layer-container {
+            padding: 10px;
+            background-color: #f2f2f2;
+        }
+
+        .layer {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .layer input {
+            margin-right: 5px;
+        }
+
+        .layer-label {
+            margin-right: 10px;
+        }
+
+        .layer-button {
+            padding: 4px;
+            border: none;
+            background-color: #eaeaea;
+            color: #000;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .layer-button:hover {
+            background-color: #dcdcdc;
         }
     </style>
 </head>
 <body>
     <div id="toolbar">
-        <label for="color-picker">Color:</label>
-        <input type="color" id="color-picker" />
         <button class="toolbar-button" onclick="setBrush('brush')">Brush</button>
         <button class="toolbar-button" onclick="setBrush('eraser')">Eraser</button>
+        <input type="color" id="color-picker" onchange="changeColor(event)" />
         <button class="toolbar-button" onclick="addLayer()">Add Layer</button>
         <button class="toolbar-button" onclick="removeLayer()">Remove Layer</button>
     </div>
-    <canvas id="canvas" width="800" height="600"></canvas>
+    <div id="canvas-container">
+        <canvas id="canvas" width="800" height="600"></canvas>
+        <div id="layer-container"></div>
+    </div>
 
     <script>
         const canvas = document.getElementById('canvas');
         const context = canvas.getContext('2d');
+        const layerContainer = document.getElementById('layer-container');
         const layers = [];
         let currentLayer = null;
         let currentBrush = 'brush';
@@ -42,14 +101,19 @@
             const layer = document.createElement('canvas');
             layer.width = canvas.width;
             layer.height = canvas.height;
+            layer.classList.add('layer');
+            layer.addEventListener('click', () => setCurrentLayer(layer));
             layers.push(layer);
             setCurrentLayer(layer);
+            renderLayers();
         }
 
         function removeLayer() {
             if (layers.length > 1) {
-                layers.pop();
-                setCurrentLayer(layers[layers.length - 1]);
+                const layerIndex = layers.indexOf(currentLayer);
+                layers.splice(layerIndex, 1);
+                setCurrentLayer(layers[layerIndex - 1] || layers[layerIndex]);
+                renderLayers();
             }
         }
 
@@ -57,6 +121,7 @@
             currentLayer = layer;
             context.clearRect(0, 0, canvas.width, canvas.height);
             layers.forEach(layer => context.drawImage(layer, 0, 0));
+            renderLayers();
         }
 
         function setBrush(brush) {
@@ -88,12 +153,42 @@
             context.strokeStyle = event.target.value;
         }
 
+        function renderLayers() {
+            layerContainer.innerHTML = '';
+            layers.forEach((layer, index) => {
+                const layerDiv = document.createElement('div');
+                layerDiv.classList.add('layer');
+                if (layer === currentLayer) {
+                    layerDiv.style.backgroundColor = '#eaeaea';
+                }
+                const layerLabel = document.createElement('span');
+                layerLabel.classList.add('layer-label');
+                layerLabel.textContent = `Layer ${index + 1}`;
+                const layerButton = document.createElement('button');
+                layerButton.classList.add('layer-button');
+                layerButton.textContent = 'Delete';
+                layerButton.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    removeLayerByButton(layer);
+                });
+                layerDiv.appendChild(layerLabel);
+                layerDiv.appendChild(layerButton);
+                layerContainer.appendChild(layerDiv);
+            });
+        }
+
+        function removeLayerByButton(layer) {
+            const layerIndex = layers.indexOf(layer);
+            layers.splice(layerIndex, 1);
+            setCurrentLayer(layers[layerIndex - 1] || layers[layerIndex]);
+            renderLayers();
+        }
+
         canvas.addEventListener('mousedown', startDrawing);
         canvas.addEventListener('mousemove', draw);
         canvas.addEventListener('mouseup', stopDrawing);
         canvas.addEventListener('mouseout', stopDrawing);
 
-        document.getElementById('color-picker').addEventListener('input', changeColor);
         addLayer();
     </script>
 </body>
