@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Paint Program</title>
+    <style>
+        #canvas {
+            border: 1px solid #000;
+            cursor: crosshair;
+        }
+        #toolbar {
+            margin-bottom: 10px;
+        }
+        .toolbar-button {
+            display: inline-block;
+            padding: 5px;
+            margin-right: 5px;
+            border: 1px solid #000;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="toolbar">
+        <label for="color-picker">Color:</label>
+        <input type="color" id="color-picker" />
+        <button class="toolbar-button" onclick="setBrush('brush')">Brush</button>
+        <button class="toolbar-button" onclick="setBrush('eraser')">Eraser</button>
+        <button class="toolbar-button" onclick="addLayer()">Add Layer</button>
+        <button class="toolbar-button" onclick="removeLayer()">Remove Layer</button>
+    </div>
+    <canvas id="canvas" width="800" height="600"></canvas>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const context = canvas.getContext('2d');
+        const layers = [];
+        let currentLayer = null;
+        let currentBrush = 'brush';
+        let isDrawing = false;
+
+        function addLayer() {
+            const layer = document.createElement('canvas');
+            layer.width = canvas.width;
+            layer.height = canvas.height;
+            layers.push(layer);
+            setCurrentLayer(layer);
+        }
+
+        function removeLayer() {
+            if (layers.length > 1) {
+                layers.pop();
+                setCurrentLayer(layers[layers.length - 1]);
+            }
+        }
+
+        function setCurrentLayer(layer) {
+            currentLayer = layer;
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            layers.forEach(layer => context.drawImage(layer, 0, 0));
+        }
+
+        function setBrush(brush) {
+            currentBrush = brush;
+        }
+
+        function startDrawing(event) {
+            isDrawing = true;
+            const { offsetX, offsetY } = event;
+            context.beginPath();
+            context.moveTo(offsetX, offsetY);
+        }
+
+        function draw(event) {
+            if (!isDrawing) return;
+            const { offsetX, offsetY } = event;
+            context.lineTo(offsetX, offsetY);
+            context.stroke();
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+            currentLayer.getContext('2d').drawImage(canvas, 0, 0);
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            layers.forEach(layer => context.drawImage(layer, 0, 0));
+        }
+
+        function changeColor(event) {
+            context.strokeStyle = event.target.value;
+        }
+
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+
+        document.getElementById('color-picker').addEventListener('input', changeColor);
+        addLayer();
+    </script>
+</body>
+</html>
