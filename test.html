@@ -14,6 +14,10 @@
             background-color: #f0f0f0;
             cursor: move;
         }
+
+        .layer input {
+            margin-left: 10px;
+        }
     </style>
 </head>
 <body>
@@ -28,6 +32,9 @@
         <label for="brushSize">Brush Size:</label>
         <input type="number" id="brushSize" value="5">
         <input type="color" id="brushColor" value="#000000">
+    </div>
+    <div>
+        <button onclick="createLayer()">Create Layer</button>
     </div>
     <div id="layersContainer"></div>
     <canvas id="canvas"></canvas>
@@ -92,26 +99,26 @@
 
         // Function to undo the last drawing action
         function undo() {
-            if (undoStack.length === 0) return;
-            redoStack.push(canvas.toDataURL());
+            if (undoStack.length < 2) return;
+            redoStack.push(undoStack.pop());
             let img = new Image();
             img.onload = function () {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 ctx.drawImage(img, 0, 0);
             };
-            img.src = undoStack.pop();
+            img.src = undoStack[undoStack.length - 1];
         }
 
         // Function to redo the last undone drawing action
         function redo() {
             if (redoStack.length === 0) return;
-            undoStack.push(canvas.toDataURL());
+            undoStack.push(redoStack.pop());
             let img = new Image();
             img.onload = function () {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 ctx.drawImage(img, 0, 0);
             };
-            img.src = redoStack.pop();
+            img.src = undoStack[undoStack.length - 1];
         }
 
         // Function to change the canvas resolution
@@ -134,12 +141,31 @@
             layerElement.className = 'layer';
             layerElement.draggable = true;
             layerElement.id = 'layer-' + layerId;
-            layerElement.textContent = 'Layer ' + layerId;
+
+            const layerNameInput = document.createElement('input');
+            layerNameInput.type = 'text';
+            layerNameInput.value = 'Layer ' + layerId;
+            layerNameInput.addEventListener('input', function () {
+                renameLayer(layerElement.id, layerNameInput.value);
+            });
+
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = 'Delete';
+            deleteButton.addEventListener('click', function () {
+                deleteLayer(layerElement.id);
+            });
+
+            layerElement.appendChild(layerNameInput);
+            layerElement.appendChild(deleteButton);
+
             layerElement.addEventListener('dragstart', layerDragStart);
             layerElement.addEventListener('dragover', layerDragOver);
             layerElement.addEventListener('drop', layerDrop);
             document.getElementById('layersContainer').appendChild(layerElement);
-            layers.push(layerElement);
+            layers.push({
+                id: layerElement.id,
+                name: layerNameInput.value
+            });
         }
 
         // Function to handle layer drag start
@@ -158,11 +184,14 @@
             const sourceLayerId = e.dataTransfer.getData('text/plain');
             const sourceLayer = document.getElementById(sourceLayerId);
             const targetLayer = e.target;
-            const sourceIndex = layers.indexOf(sourceLayer);
-            const targetIndex = layers.indexOf(targetLayer);
+            const sourceIndex = layers.findIndex(layer => layer.id === sourceLayerId);
+            const targetIndex = layers.findIndex(layer => layer.id === targetLayer.id);
             if (sourceIndex > -1 && targetIndex > -1) {
                 layers.splice(sourceIndex, 1);
-                layers.splice(targetIndex, 0, sourceLayer);
+                layers.splice(targetIndex, 0, {
+                    id: sourceLayerId,
+                    name: layers[sourceIndex].name
+                });
                 rearrangeLayers();
             }
         }
@@ -174,12 +203,51 @@
                 layersContainer.firstChild.remove();
             }
             layers.forEach((layer) => {
-                layersContainer.appendChild(layer);
+                const layerElement = document.createElement('div');
+                layerElement.className = 'layer';
+                layerElement.draggable = true;
+                layerElement.id = layer.id;
+
+                const layerNameInput = document.createElement('input');
+                layerNameInput.type = 'text';
+                layerNameInput.value = layer.name;
+                layerNameInput.addEventListener('input', function () {
+                    renameLayer(layer.id, layerNameInput.value);
+                });
+
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.addEventListener('click', function () {
+                    deleteLayer(layer.id);
+                });
+
+                layerElement.appendChild(layerNameInput);
+                layerElement.appendChild(deleteButton);
+
+                layerElement.addEventListener('dragstart', layerDragStart);
+                layerElement.addEventListener('dragover', layerDragOver);
+                layerElement.addEventListener('drop', layerDrop);
+
+                layersContainer.appendChild(layerElement);
             });
         }
 
-        // Create initial layer
-        createLayer();
+        // Function to rename a layer
+        function renameLayer(layerId, newName) {
+            const layer = layers.find(layer => layer.id === layerId);
+            if (layer) {
+                layer.name = newName;
+            }
+        }
+
+        // Function to delete a layer
+        function deleteLayer(layerId) {
+            const layerIndex = layers.findIndex(layer => layer.id === layerId);
+            if (layerIndex > -1) {
+                layers.splice(layerIndex, 1);
+                document.getElementById(layerId).remove();
+            }
+        }
     </script>
 </body>
 </html>
