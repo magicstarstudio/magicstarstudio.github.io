@@ -10,34 +10,34 @@ const chapters = {
     },
     chapter1: {
       pages: [
-        "comic/chapter1/page1.png",
-        "comic/chapter1/page2.png",
-        "comic/chapter1/page3.png",
-        "comic/chapter1/page4.png"
+        "comic/chapter1/Page 1.png",
+        "comic/chapter1/Page 2.png",
+        "comic/chapter1/Page 3.png",
+        "comic/chapter1/Page 4.png"
       ]
     },
     chapter2: {
       pages: [
-        "comic/chapter2/page1.png",
-        "comic/chapter2/page2.png",
-        "comic/chapter2/page3.png",
-        "comic/chapter2/page4.png"
+        "comic/chapter2/Page 1.png",
+        "comic/chapter2/Page 2.png",
+        "comic/chapter2/Page 3.png",
+        "comic/chapter2/Page 4.png"
       ]
     },
     chapter3: {
       pages: [
-        "comic/chapter3/page1.png",
-        "comic/chapter3/page2.png",
-        "comic/chapter3/page3.png",
-        "comic/chapter3/page4.png"
+        "comic/chapter3/Page 1.png",
+        "comic/chapter3/Page 2.png",
+        "comic/chapter3/Page 3.png",
+        "comic/chapter3/Page 4.png"
       ]
     },
     chapter4: {
       pages: [
-        "comic/chapter4/page1.png",
-        "comic/chapter4/page2.png",
-        "comic/chapter4/page3.png",
-        "comic/chapter4/page4.png"
+        "comic/chapter4/Page 1.png",
+        "comic/chapter4/Page 2.png",
+        "comic/chapter4/Page 3.png",
+        "comic/chapter4/Page 4.png"
       ]
     }
   };
