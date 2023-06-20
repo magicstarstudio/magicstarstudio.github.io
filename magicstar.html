@@ -1,60 +1,52 @@
 <!DOCTYPE html>
-
-<link rel="icon" href="favicon.ico" type="image/x-icon">
-
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Magic Star - Comic</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    #comic-container {
+      margin-top: 20px;
+      text-align: center;
+    }
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Magic Star - Comic</title>
-
-    <link rel="stylesheet" href="style.css">
-
+    #comic-image-name {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+  </style>
 </head>
 
-
 <body>
-
-    <div class="nav">
-
-        <div class="nav-logo">
-
-            <a href="index.html" class="nav-logo">
-                <img src="images/logo.png" alt="Site Logo">
-            </a>
-        </div>
-
-        <select id="chapter-select">
-
-            <option value="prologue">Prologue</option>
-            <option value="chapter1">Chapter 1</option>
-            <option value="chapter2">Chapter 2</option>
-            <option value="chapter3">Chapter 3</option>
-
-        </select>
-        <button id="previous-btn" disabled>Previous</button>
-
-        <span class="spacer"></span>
-
-        <button id="next-btn" disabled>Next</button>
-
+  <div class="nav">
+    <div class="nav-logo">
+      <a href="index.html" class="nav-logo">
+        <img src="images/logo.png" alt="Site Logo">
+      </a>
     </div>
-
+    <select id="chapter-select">
+      <option value="prologue">Prologue</option>
+      <option value="chapter1">Chapter 1</option>
+      <option value="chapter2">Chapter 2</option>
+      <option value="chapter3">Chapter 3</option>
+    </select>
+    <button id="previous-btn" disabled>Previous</button>
+    <span class="spacer"></span>
+    <button id="next-btn" disabled>Next</button>
+  </div>
+  <div id="comic-container">
+    <h2 id="comic-image-name"></h2>
     <img id="comic-image" src="" alt="Comic Page">
+  </div>
+  <footer>
+    &copy; Magic Star Studios 2023
+    <a href="https://discord.gg/wxDTezg6R3" target="_blank">Magic Star Discord Server</a>
+  </footer>
 
-    <footer>
-
-        &copy; Magic Star Studios 2023
-
-        <a href="https://discord.gg/wxDTezg6R3" target="_blank">Magic Star Discord Server</a>
-
-    </footer>
-  
-    <script src="script.js"></script>
-
+  <script src="script.js"></script>
 </body>
 
 </html>
